@@ -1,0 +1,7 @@
+{
+  "name": "geotraqueur",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
