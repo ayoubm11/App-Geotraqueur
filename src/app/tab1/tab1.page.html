@@ -5,14 +5,32 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
+  
+  <!-- Sélection de catégorie -->
+  <ion-card>
+    <ion-card-header>
+      <ion-card-subtitle>Catégorie du lieu</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-segment [(ngModel)]="selectedCategory" mode="md">
+        <ion-segment-button *ngFor="let cat of categories" [value]="cat.value">
+          <ion-icon [name]="cat.icon"></ion-icon>
+          <ion-label>{{ cat.label }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-card-content>
+  </ion-card>
+
   <!-- Boutons géolocalisation -->
   <ion-button expand="block" color="primary" (click)="getCurrentPosition()">
+    <ion-icon name="navigate" slot="start"></ion-icon>
     Position actuelle
   </ion-button>
   
   <ion-button expand="block" [color]="isTracking ? 'danger' : 'success'"
     (click)="toggleTracking()">
-    {{ isTracking ? '⏸ Arrêter le suivi' : '▶ Démarrer le suivi' }}
+    <ion-icon [name]="isTracking ? 'pause' : 'play'" slot="start"></ion-icon>
+    {{ isTracking ? 'Arrêter le suivi' : 'Démarrer le suivi' }}
   </ion-button>
 
   <!-- Affichage position actuelle -->
@@ -24,28 +42,57 @@
       <p><strong>Latitude :</strong> {{ currentPosition.coords.latitude | number:'1.6-6' }}</p>
       <p><strong>Longitude :</strong> {{ currentPosition.coords.longitude | number:'1.6-6' }}</p>
       <p><strong>Précision :</strong> {{ currentPosition.coords.accuracy | number:'1.0-0' }} m</p>
+      <p><strong>Catégorie :</strong> 
+        <ion-chip [color]="getCategoryInfo(selectedCategory).color">
+          <ion-icon [name]="getCategoryInfo(selectedCategory).icon"></ion-icon>
+          <ion-label>{{ getCategoryInfo(selectedCategory).label }}</ion-label>
+        </ion-chip>
+      </p>
     </ion-card-content>
   </ion-card>
 
-  <!-- Historique des positions + bouton photo -->
+  <!-- Statistiques -->
+  <ion-card *ngIf="positions.length > 0">
+    <ion-card-header>
+      <ion-card-subtitle>Statistiques</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="6" *ngFor="let cat of categories">
+            <ion-chip [color]="cat.color">
+              <ion-icon [name]="cat.icon"></ion-icon>
+              <ion-label>{{ cat.label }}: {{ getStats()[cat.value] }}</ion-label>
+            </ion-chip>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Historique des positions -->
   <ion-list>
     <ion-list-header>
       <ion-label>Historique des positions ({{ positions.length }})</ion-label>
     </ion-list-header>
     
-    <ion-item *ngFor="let pos of positions.slice(0,10); let i = index">
+    <ion-item *ngFor="let pos of positions.slice(0,20); let i = index">
       <ion-thumbnail slot="start">
         <ion-img *ngIf="pos.photo" [src]="pos.photo"></ion-img>
-        <ion-icon *ngIf="!pos.photo" name="camera-outline" color="medium"></ion-icon>
+        <ion-icon *ngIf="!pos.photo" name="camera-outline" size="large" color="medium"></ion-icon>
       </ion-thumbnail>
       
       <ion-label>
         <h3>{{ i + 1 }}. {{ pos.timestamp }}</h3>
         <p>{{ pos.coords.latitude | number:'1.6-6' }}, {{ pos.coords.longitude | number:'1.6-6' }}</p>
+        <ion-chip [color]="getCategoryInfo(pos.category).color" style="margin-top: 4px;">
+          <ion-icon [name]="getCategoryInfo(pos.category).icon"></ion-icon>
+          <ion-label>{{ getCategoryInfo(pos.category).label }}</ion-label>
+        </ion-chip>
       </ion-label>
       
       <ion-button slot="end" fill="clear" (click)="takePhoto(i)">
-        Photo
+        <ion-icon name="camera" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-item>
   </ion-list>
