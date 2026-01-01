@@ -1,4 +1,4 @@
-# App Géotraqueur Étudiant
+# App Géotraqueur
 
 Application mobile de géolocalisation et photos géolocalisées développée avec Ionic/Capacitor pour Android.
 
